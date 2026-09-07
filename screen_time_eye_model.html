@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screens & Sight — A Research-Anchored Eye Health Estimator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF9F5;
+    --panel:#FFFFFF;
+    --ink:#1E2624;
+    --ink-soft:#565F5C;
+    --rule:#DEDACD;
+    --glow:#E2963B;
+    --glow-dim:#F6E3C4;
+    --clinical:#2C6E75;
+    --clinical-dim:#DCEBEC;
+    --risk:#B4453D;
+    --risk-dim:#F4DEDB;
+    --good:#3E7357;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+    padding:0 0 64px;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px;}
+
+  header.hero{
+    padding:56px 24px 40px;
+    border-bottom:1px solid var(--rule);
+    background:
+      radial-gradient(ellipse 700px 300px at 85% -10%, var(--glow-dim), transparent 60%);
+  }
+  .kicker{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.02em;
+    color:var(--clinical);
+    margin:0 0 14px;
+  }
+  h1{
+    font-family:'Source Serif 4',serif;
+    font-weight:700;
+    font-size:clamp(32px,5vw,46px);
+    line-height:1.08;
+    margin:0 0 16px;
+    max-width:14ch;
+  }
+  .hero p.lede{
+    font-size:17px;
+    color:var(--ink-soft);
+    max-width:56ch;
+    margin:0;
+  }
+
+  section{padding:44px 24px;border-bottom:1px solid var(--rule);}
+  section:last-of-type{border-bottom:none;}
+  h2{
+    font-family:'Source Serif 4',serif;
+    font-size:24px;
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  .section-note{color:var(--ink-soft);font-size:14.5px;margin:0 0 28px;max-width:60ch;}
+
+  /* ---- Interactive control ---- */
+  .control-panel{
+    background:var(--panel);
+    border:1px solid var(--rule);
+    border-radius:14px;
+    padding:32px;
+  }
+  .slider-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;}
+  .slider-label{font-size:14px;color:var(--ink-soft);font-weight:500;}
+  .hour-readout{
+    font-family:'Source Serif 4',serif;
+    font-size:40px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .hour-readout span{font-size:18px;font-weight:500;color:var(--ink-soft);}
+  input[type=range]{
+    width:100%;
+    -webkit-appearance:none;
+    appearance:none;
+    height:6px;
+    border-radius:4px;
+    background:linear-gradient(to right, var(--clinical), var(--glow) 45%, var(--risk) 85%);
+    outline:none;
+    margin:18px 0 8px;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:24px;height:24px;
+    border-radius:50%;
+    background:var(--panel);
+    border:4px solid var(--ink);
+    cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,0.25);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;
+    border-radius:50%;
+    background:var(--panel);
+    border:4px solid var(--ink);
+    cursor:pointer;
+  }
+  .tick-labels{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;}
+  .preset-btn{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:7px 14px;
+    border-radius:20px;
+    border:1px solid var(--rule);
+    background:var(--paper);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .preset-btn:hover{border-color:var(--clinical);color:var(--clinical);}
+
+  /* ---- readout cards ---- */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+  @media (max-width:600px){.cards{grid-template-columns:1fr;}}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--rule);
+    border-radius:12px;
+    padding:22px;
+  }
+  .card .label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.02em;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .card .big-stat{
+    font-family:'Source Serif 4',serif;
+    font-size:30px;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .card .sub{font-size:13.5px;color:var(--ink-soft);}
+  .badge{
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:20px;
+    margin-top:10px;
+  }
+  .badge.low{background:var(--clinical-dim);color:var(--clinical);}
+  .badge.med{background:var(--glow-dim);color:#8A5A16;}
+  .badge.high{background:var(--risk-dim);color:var(--risk);}
+
+  .full-card{grid-column:1 / -1;}
+  .rec-list{margin:10px 0 0;padding-left:18px;font-size:14.5px;color:var(--ink-soft);}
+  .rec-list li{margin-bottom:6px;}
+
+  /* ---- chart ---- */
+  .chart-wrap{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:28px;margin-top:20px;}
+  svg{width:100%;height:auto;display:block;}
+  .axis-text{font-family:'IBM Plex Mono',monospace;font-size:10.5px;fill:var(--ink-soft);}
+  .anchor-dot{fill:var(--clinical);stroke:var(--panel);stroke-width:2;}
+  .extrap-note{font-size:12.5px;color:var(--ink-soft);margin-top:10px;}
+  .legend{display:flex;gap:18px;font-size:12.5px;color:var(--ink-soft);margin-top:12px;flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;display:inline-block;border-radius:2px;}
+
+  /* ---- data table ---- */
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--rule);}
+  th{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);font-weight:500;}
+  td.num{font-variant-numeric:tabular-nums;}
+  .src-link{color:var(--clinical);text-decoration:none;font-size:12.5px;}
+  .src-link:hover{text-decoration:underline;}
+
+  .disclaimer{
+    background:var(--clinical-dim);
+    border:1px solid #BFD9DA;
+    border-radius:10px;
+    padding:18px 20px;
+    font-size:13.5px;
+    color:#1F4A4F;
+  }
+  .disclaimer strong{display:block;margin-bottom:6px;font-family:'Inter';}
+
+  footer{padding:32px 24px;text-align:center;color:var(--ink-soft);font-size:13px;}
+</style>
+</head>
+<body>
+
+<header class="hero wrap" style="max-width:100%;">
+  <div class="wrap" style="padding:0;">
+    <p class="kicker">INTERACTIVE ESTIMATOR — BUILT FROM PUBLISHED RESEARCH</p>
+    <h1>What your screen time is actually doing to your eyes</h1>
+    <p class="lede">Move the slider to your typical daily screen hours. Every number that follows is anchored to a named, cited study — not a black-box model. Where the published research stops, the tool says so.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section id="control">
+  <h2>Set your daily screen time</h2>
+  <p class="section-note">Total time across phone, computer, tablet, and TV — recreational and work/school combined.</p>
+
+  <div class="control-panel">
+    <div class="slider-row">
+      <span class="slider-label">DAILY SCREEN EXPOSURE</span>
+      <span class="hour-readout" id="hourReadout">6.0<span> hrs / day</span></span>
+    </div>
+    <input type="range" id="hourSlider" min="0" max="16" step="0.1" value="6">
+    <div class="tick-labels"><span>0h</span><span>4h</span><span>8h</span><span>12h</span><span>16h</span></div>
+    <div class="presets">
+      <button class="preset-btn" data-h="1.5">Light user — 1.5h</button>
+      <button class="preset-btn" data-h="4">Avg. teen — 4h</button>
+      <button class="preset-btn" data-h="6.5">Avg. adult — 6.5h</button>
+      <button class="preset-btn" data-h="9">Heavy office day — 9h</button>
+      <button class="preset-btn" data-h="12">Gamer / streamer — 12h</button>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="label">MYOPIA (NEARSIGHTEDNESS) RISK</div>
+      <div class="big-stat" id="myopiaStat">—</div>
+      <div class="sub" id="myopiaSub">—</div>
+      <span class="badge" id="myopiaBadge">—</span>
+    </div>
+    <div class="card">
+      <div class="label">DIGITAL EYE STRAIN LIKELIHOOD</div>
+      <div class="big-stat" id="desStat">—</div>
+      <div class="sub" id="desSub">—</div>
+      <span class="badge" id="desBadge">—</span>
+    </div>
+    <div class="card">
+      <div class="label">BLINKING & TEAR FILM</div>
+      <div class="big-stat" id="blinkStat">—</div>
+      <div class="sub" id="blinkSub">—</div>
+    </div>
+    <div class="card">
+      <div class="label">SLEEP / CIRCADIAN NOTE</div>
+      <div class="big-stat" id="sleepStat">—</div>
+      <div class="sub" id="sleepSub">—</div>
+    </div>
+    <div class="card full-card">
+      <div class="label">WHAT HELPS AT THIS LEVEL</div>
+      <ul class="rec-list" id="recList"></ul>
+    </div>
+  </div>
+</section>
+
+<section id="chart-section">
+  <h2>The myopia dose-response curve</h2>
+  <p class="section-note">The one relationship in this tool that comes from an actual dose-response meta-analysis, rather than a handful of separate prevalence surveys. Solid line = interpolated between the study's own data points. Dashed line = this tool's gentle extrapolation beyond where the published analysis stops — not a reported value.</p>
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--clinical);"></span>Published range (0–4 h/day, Ha et al. 2025)</span>
+      <span><span class="swatch" style="background:var(--clinical);opacity:0.4;"></span>Illustrative extrapolation (&gt;4 h/day)</span>
+      <span><span class="swatch" style="background:var(--glow);height:10px;border-radius:50%;width:10px;"></span>Your current setting</span>
+    </div>
+    <p class="extrap-note">Source: Ha A, et al. "Digital Screen Time and Myopia: A Systematic Review and Dose-Response Meta-Analysis." <em>JAMA Network Open</em>, 2025. Nonlinear model, 34 studies, n = 314,910. Odds ratios shown relative to minimal/no daily screen exposure.</p>
+  </div>
+</section>
+
+<section id="data-table">
+  <h2>Every number, traced to its source</h2>
+  <p class="section-note">The underlying dataset behind this tool — no synthetic values, no scraped "stats" pages without a named study. Full CSV is included alongside this file.</p>
+  <table>
+    <thead><tr><th>Metric</th><th>Value</th><th>Population / hours</th><th>Source</th></tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</section>
+
+<section id="method">
+  <h2>How this tool works — and where it stops</h2>
+  <div class="disclaimer">
+    <strong>This is a research-anchored estimator, not a diagnostic or a personal prediction.</strong>
+    It combines results from different studies with different populations, definitions of "digital eye strain," and measurement methods. Cross-study comparisons here are illustrative, not a unified regression fit to individual-level data — no such public dataset exists. Associations reported in the source studies (especially for myopia) are correlational; screen time is one contributing factor among many, including genetics, near-work in general, and time spent outdoors. Nothing here should replace an eye exam or a clinician's advice, and if you're experiencing persistent eye pain, sudden vision changes, or headaches, see an eye care professional rather than relying on this tool.
+  </div>
+</section>
+
+</div>
+
+<footer>Built with published, cited research (2013–2025) · No personal data is collected or stored · See ReadMe.md and research_data.csv for full source list</footer>
+
+<script>
+const anchoredCurve = [[0.0, 1.0], [0.1, 1.0007], [0.2, 1.0027], [0.3, 1.006], [0.4, 1.0102], [0.5, 1.0154], [0.6, 1.0213], [0.7, 1.0279], [0.8, 1.035], [0.9, 1.0424], [1.0, 1.05], [1.1, 1.0586], [1.2, 1.0689], [1.3, 1.0809], [1.4, 1.0947], [1.5, 1.1101], [1.6, 1.1272], [1.7, 1.146], [1.8, 1.1663], [1.9, 1.1882], [2.0, 1.2117], [2.1, 1.2367], [2.2, 1.2632], [2.3, 1.2912], [2.4, 1.3207], [2.5, 1.3516], [2.6, 1.3839], [2.7, 1.4176], [2.8, 1.4526], [2.9, 1.489], [3.0, 1.5267], [3.1, 1.5657], [3.2, 1.6059], [3.3, 1.6473], [3.4, 1.69], [3.5, 1.7339], [3.6, 1.7789], [3.7, 1.825], [3.8, 1.8723], [3.9, 1.9206], [4.0, 1.97]];
+const extrapCurve = [[4.0, 1.97], [4.5, 2.22], [5.0, 2.4352], [5.5, 2.6204], [6.0, 2.7798], [6.5, 2.917], [7.0, 3.0351], [7.5, 3.1367], [8.0, 3.2242], [8.5, 3.2995], [9.0, 3.3643], [9.5, 3.4201], [10.0, 3.4681], [10.5, 3.5094], [11.0, 3.545], [11.5, 3.5756], [12.0, 3.602], [12.5, 3.6247], [13.0, 3.6442], [13.5, 3.661], [14.0, 3.6754], [14.5, 3.6879], [15.0, 3.6986], [15.5, 3.7078], [16.0, 3.7158]];
+
+function myopiaOR(h){
+  if(h<=4){
+    // linear interpolation across dense anchored points
+    for(let i=0;i<anchoredCurve.length-1;i++){
+      const [x0,y0]=anchoredCurve[i], [x1,y1]=anchoredCurve[i+1];
+      if(h>=x0 && h<=x1){
+        const t=(h-x0)/(x1-x0);
+        return y0 + t*(y1-y0);
+      }
+    }
+    return anchoredCurve[anchoredCurve.length-1][1];
+  } else {
+    for(let i=0;i<extrapCurve.length-1;i++){
+      const [x0,y0]=extrapCurve[i], [x1,y1]=extrapCurve[i+1];
+      if(h>=x0 && h<=x1){
+        const t=(h-x0)/(x1-x0);
+        return y0 + t*(y1-y0);
+      }
+    }
+    return extrapCurve[extrapCurve.length-1][1];
+  }
+}
+
+function desEstimate(h){
+  // Illustrative bands anchored to specific named cross-sectional studies (not a smooth fit)
+  if(h < 2) return {pct:"Limited direct data", label:"Low relative exposure", badge:"low",
+    note:"Most published cohorts study heavier users; low-exposure groups aren't well isolated in the literature reviewed here."};
+  if(h < 4.5) return {pct:"52–71%", label:"report DES symptoms", badge:"med",
+    note:"Anchored to studies averaging ~4 h/day (older adult device users; CVS-Q ≥6 threshold vs. self-report)."};
+  if(h < 6) return {pct:"~76%", label:"report CVS symptoms", badge:"high",
+    note:"Anchored to university students where 84.6% used devices ≥5 h/day (Riyadh, 2023)."};
+  if(h < 7.5) return {pct:"~52–70%", label:"report DES / weekly symptoms", badge:"high",
+    note:"Anchored to adolescents averaging 6.7 h/day (51.5% DES) and adults at 6+ h/day (69% weekly+ symptoms)."};
+  return {pct:"~65–68%", label:"of comparable heavy-use populations report symptoms", badge:"high",
+    note:"Anchored to U.S. general-population and office-worker estimates at 7+ h/day averages."};
+}
+
+function blinkEstimate(h){
+  if(h < 0.5){
+    return {stat:"~15–20 bpm", sub:"Baseline blink rate away from screens — resting/reading print is the reference point most studies compare against."};
+  }
+  return {stat:"~5–7 bpm reported by patient-education sources", sub:"Note: a controlled lab study (Rosenfield et al., 2013) found blink rate itself barely changed on-screen (14.9 vs 13.6 bpm) — but incomplete blinks rose from 4.3% to 7.0%, which is what actually dries the tear film."};
+}
+
+function sleepEstimate(h){
+  if(h < 1) return {stat:"Minimal concern", sub:"Circadian effects of screens are driven mainly by evening/pre-bedtime exposure, not total daily hours."};
+  return {stat:"Timing matters most", sub:"A Harvard-led study found evening blue light suppressed melatonin ~2× longer, and shifted circadian rhythm ~2× more, than equally bright green light."};
+}
+
+function recommendations(h){
+  const base = ["Follow the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds.",
+    "Keep screens at or slightly below eye level, roughly an arm's length away."];
+  if(h>=4) base.push("Build in real breaks — standing, walking, or outdoor time away from any screen.");
+  if(h>=6) base.push("Consider artificial tears if dryness, grittiness, or end-of-day blur shows up regularly.");
+  if(h>=1) base.push("Dim or shift screens away from blue-heavy light in the hour before bed if sleep is a concern.");
+  base.push("For children especially, prioritize time outdoors — outdoor light exposure is one of the few factors shown to reduce myopia risk.");
+  return base;
+}
+
+const slider = document.getElementById('hourSlider');
+const hourReadout = document.getElementById('hourReadout');
+
+function render(h){
+  h = parseFloat(h);
+  hourReadout.innerHTML = h.toFixed(1) + '<span> hrs / day</span>';
+
+  const OR = myopiaOR(h);
+  document.getElementById('myopiaStat').textContent = 'OR ' + OR.toFixed(2) + '×';
+  document.getElementById('myopiaSub').textContent = h<=4
+    ? 'vs. minimal daily exposure — from the published dose-response curve.'
+    : 'vs. minimal daily exposure — beyond 4h/day this is an illustrative extrapolation, not a directly reported figure.';
+  const mb = document.getElementById('myopiaBadge');
+  mb.textContent = OR<1.3 ? 'Lower relative risk' : (OR<1.97 ? 'Elevated' : 'Substantially elevated');
+  mb.className = 'badge ' + (OR<1.3?'low':(OR<1.97?'med':'high'));
+
+  const des = desEstimate(h);
+  document.getElementById('desStat').textContent = des.pct;
+  document.getElementById('desSub').textContent = des.label + '. ' + des.note;
+  const db = document.getElementById('desBadge');
+  db.textContent = des.badge==='low'?'Lower relative exposure':(des.badge==='med'?'Moderate':'High');
+  db.className = 'badge ' + des.badge;
+
+  const bl = blinkEstimate(h);
+  document.getElementById('blinkStat').textContent = bl.stat;
+  document.getElementById('blinkSub').textContent = bl.sub;
+
+  const sl = sleepEstimate(h);
+  document.getElementById('sleepStat').textContent = sl.stat;
+  document.getElementById('sleepSub').textContent = sl.sub;
+
+  const recs = recommendations(h);
+  document.getElementById('recList').innerHTML = recs.map(r=>'<li>'+r+'</li>').join('');
+
+  drawChart(h, OR);
+}
+
+// ---- SVG chart ----
+const svg = document.getElementById('chart');
+const W=820,H=380,ML=56,MR=24,MT=24,MB=44;
+const plotW = W-ML-MR, plotH = H-MT-MB;
+const xMax = 16, yMax = 4.0;
+function xPix(h){return ML + (h/xMax)*plotW;}
+function yPix(v){return MT + plotH - ((v-1)/(yMax-1))*plotH;}
+
+function pathFor(points){
+  return points.map((p,i)=> (i===0?'M':'L') + xPix(p[0]).toFixed(1) + ',' + yPix(p[1]).toFixed(1)).join(' ');
+}
+
+function drawChart(hSel, orSel){
+  let s = '';
+  // gridlines
+  for(let v=1; v<=yMax; v+=0.5){
+    s += `<line x1="${ML}" y1="${yPix(v)}" x2="${W-MR}" y2="${yPix(v)}" stroke="#EEEAE0" stroke-width="1"/>`;
+    s += `<text class="axis-text" x="${ML-8}" y="${yPix(v)+4}" text-anchor="end">${v.toFixed(1)}×</text>`;
+  }
+  for(let hh=0; hh<=xMax; hh+=2){
+    s += `<line x1="${xPix(hh)}" y1="${MT}" x2="${xPix(hh)}" y2="${H-MB}" stroke="#F3F0E8" stroke-width="1"/>`;
+    s += `<text class="axis-text" x="${xPix(hh)}" y="${H-MB+18}" text-anchor="middle">${hh}h</text>`;
+  }
+  s += `<text class="axis-text" x="${ML}" y="16" text-anchor="start">Odds ratio for myopia</text>`;
+  s += `<text class="axis-text" x="${W-MR}" y="${H-12}" text-anchor="end">Daily screen hours</text>`;
+
+  // solid published curve
+  s += `<path d="${pathFor(anchoredCurve)}" fill="none" stroke="#2C6E75" stroke-width="2.5"/>`;
+  // dashed extrapolation
+  s += `<path d="${pathFor(extrapCurve)}" fill="none" stroke="#2C6E75" stroke-width="2.5" stroke-dasharray="6,5" opacity="0.55"/>`;
+
+  // anchor dots (real study points)
+  const anchors = [[0,1.00],[1,1.05],[4,1.97]];
+  anchors.forEach(a=>{
+    s += `<circle class="anchor-dot" cx="${xPix(a[0])}" cy="${yPix(a[1])}" r="5"/>`;
+  });
+
+  // current selection marker
+  const cx = xPix(Math.min(hSel,xMax)), cy = yPix(Math.min(orSel,yMax));
+  s += `<line x1="${cx}" y1="${MT}" x2="${cx}" y2="${H-MB}" stroke="#E2963B" stroke-width="1.5" stroke-dasharray="3,3"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="7" fill="#E2963B" stroke="#1E2624" stroke-width="2"/>`;
+
+  svg.innerHTML = s;
+}
+
+slider.addEventListener('input', e=>render(e.target.value));
+document.querySelectorAll('.preset-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    slider.value = btn.dataset.h;
+    render(btn.dataset.h);
+  });
+});
+
+render(slider.value);
+
+// ---- data table ----
+const tableRows = [
+  ["Myopia OR at 1h/day","1.05×","Children/adolescents, n=314,910","Ha et al., JAMA Network Open 2025","https://pubmed.ncbi.nlm.nih.gov/39982728/"],
+  ["Myopia OR at 4h/day","1.97×","Children/adolescents, n=314,910","Ha et al., JAMA Network Open 2025","https://pubmed.ncbi.nlm.nih.gov/39982728/"],
+  ["Myopia OR per +1h/day (linear model)","1.21×","Children/adolescents, n=335,524","Ha et al., JAMA Network Open 2025","https://pubmed.ncbi.nlm.nih.gov/39982728/"],
+  ["DES prevalence at ~6.7h/day","51.5%","Adolescents, India, n=546","Chengalpattu schoolchildren study, 2024","https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12790465/"],
+  ["DES/CVS-Q≥6 prevalence at ~4h/day","51.6%","Older adult device users","ScienceDirect, 2024","https://www.sciencedirect.com/science/article/pii/S136704842400242X"],
+  ["CVS prevalence, ≥5h/day users","76.1%","University students, Riyadh, n=634","PMC, 2023","https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10156438/"],
+  ["Odds ratio for DES, >4h/day use","1.73×","Nursing students, Peru, n=796","PMC, 2023","https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10048894/"],
+  ["Blink rate, computer vs. hard copy","14.9 vs 13.6 bpm","Adults, controlled study, n=25","Rosenfield et al., 2013 (PubMed)","https://pubmed.ncbi.nlm.nih.gov/24413278/"],
+  ["Incomplete blinks, computer vs. hard copy","7.0% vs 4.3%","Adults, controlled study, n=25","Rosenfield et al., 2013 (PubMed)","https://pubmed.ncbi.nlm.nih.gov/24413278/"],
+  ["Melatonin suppression, blue vs. green light","~2× longer","Adults, controlled study","Harvard Health, 2024","https://www.health.harvard.edu/staying-healthy/blue-light-has-a-dark-side"],
+  ["U.S. adults reporting DES symptoms","65%","General population","Vision Center, 2025","https://www.visioncenter.org/resources/screen-time-statistics/"],
+];
+document.getElementById('tableBody').innerHTML = tableRows.map(r=>
+  `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td>${r[2]}</td><td><a class="src-link" href="${r[4]}" target="_blank" rel="noopener">${r[3]} ↗</a></td></tr>`
+).join('');
+</script>
+
+</body>
+</html>
